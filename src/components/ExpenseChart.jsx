@@ -80,7 +80,7 @@ function ExpenseChart({ expenses }) {
   };
 }, [expenses]);
 
-  // 🎨 options để giống app mobile
+  // options giống app mobile
   const options = {
     responsive: true,
     plugins: {
@@ -112,11 +112,6 @@ function ExpenseChart({ expenses }) {
     },
   };
 
-  // return (
-  //   <div style={{ padding: "20px" }}>
-  //     <Bar data={barData} options={options} />
-  //   </div>
-  // );
   return (
     <div className="chart-section">
       <h2 style={{ fontSize: "1.2rem", marginBottom: "15px" }}>Xu hướng hàng tháng</h2>
