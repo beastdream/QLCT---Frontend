@@ -1,26 +1,35 @@
+import { Trash2, ArrowUpRight, ArrowDownRight } from "lucide-react";
+
 function ExpenseList({ expenses, deleteExpense }) {
   return (
-    <div className="list-section">
-      <h3 style={{ marginBottom: "15px", color: "#94a3b8" }}>Lịch sử giao dịch</h3>
+    <div className="glass-panel list-section">
+      <h3 className="section-title">Lịch sử giao dịch</h3>
       {expenses.length === 0 ? (
-        <p style={{ textAlign: "center", color: "#64748b" }}>Chưa có giao dịch nào.</p>
+        <div className="empty-state">
+          <p>Chưa có giao dịch nào.</p>
+        </div>
       ) : (
-        <ul>
+        <ul className="expense-list">
           {expenses.map((item, index) => (
-            <li key={index} style={{ padding: "12px 0" }}>
-              <div>
-                <strong style={{ fontSize: "1.1rem" }}>{item.name}</strong>
-                <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>📅 {item.date}</div>
+            <li key={index} className="expense-item">
+              <div className="item-info">
+                <div className={`item-icon ${item.type}`}>
+                  {item.type === "income" ? <ArrowUpRight size={24} /> : <ArrowDownRight size={24} />}
+                </div>
+                <div className="item-details">
+                  <h4>{item.name}</h4>
+                  <span>📅 {item.date} • {item.category || "Khác"}</span>
+                </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                <span className={item.type === "income" ? "income" : "expense"}>
+              <div className="item-actions">
+                <span className={`amount ${item.type}`}>
                   {item.type === "income" ? "+" : "-"}{item.amount.toLocaleString()} VND
                 </span>
                 <button 
+                  className="btn-danger"
                   onClick={() => deleteExpense(index)}
-                  style={{ backgroundColor: "#ef4444", padding: "5px 10px" }}
                 >
-                  Xóa
+                  <Trash2 size={16} /> Xóa
                 </button>
               </div>
             </li>

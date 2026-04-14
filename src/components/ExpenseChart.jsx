@@ -1,25 +1,29 @@
-import { Bar } from "react-chartjs-2";
+import { Bar, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
+  ArcElement,
   Tooltip,
   Legend,
 } from "chart.js";
 import { useMemo } from "react";
 
+// Đăng ký chart components
 ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
+  ArcElement,
   Tooltip,
   Legend
 );
 
 function ExpenseChart({ expenses }) {
+  // ================= BAR CHART (THEO THÁNG) =================
   const barData = useMemo(() => {
-    let monthlyData = {};
+    const monthlyData = {};
 
     expenses.forEach((item) => {
       if (!item.date) return;
@@ -39,62 +43,89 @@ function ExpenseChart({ expenses }) {
         monthlyData[month].expense += item.amount;
       }
     });
+
     const labels = Array.from({ length: 12 }, (_, i) => `T${i + 1}`);
 
-  const incomeData = [];
-  const expenseData = [];
+    const incomeData = [];
+    const expenseData = [];
 
-  for (let i = 1; i <= 12; i++) {
-    incomeData.push(monthlyData[i]?.income || 0);
-    expenseData.push(monthlyData[i]?.expense || 0);
-  }
+    for (let i = 1; i <= 12; i++) {
+      incomeData.push(monthlyData[i]?.income || 0);
+      expenseData.push(monthlyData[i]?.expense || 0);
+    }
 
-  return {
-    labels,
-    datasets: [
-          {
-        label: "Thu",
-        data: incomeData,
-        backgroundColor: (context) => {
-          const { ctx } = context.chart;
-          const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-          gradient.addColorStop(0, "#22c55e");
-          gradient.addColorStop(1, "#4ade80");
-          return gradient;
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Thu",
+          data: incomeData,
+          backgroundColor: "#10b981",
+          borderRadius: 8,
         },
-        borderRadius: 10,
-      },
-      {
-        label: "Chi",
-        data: expenseData,
-        backgroundColor: (context) => {
-          const { ctx } = context.chart;
-          const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-          gradient.addColorStop(0, "#ef4444");
-          gradient.addColorStop(1, "#f87171");
-          return gradient;
+        {
+          label: "Chi",
+          data: expenseData,
+          backgroundColor: "#ef4444",
+          borderRadius: 8,
         },
-        borderRadius: 10,
-      },
-    ],
-  };
-}, [expenses]);
+      ],
+    };
+  }, [expenses]);
 
   // options giống app mobile
+  // ================= PIE CHART (THEO CATEGORY) =================
+  const pieData = useMemo(() => {
+    const categoryData = {};
+
+    expenses.forEach((item) => {
+      if (item.type === "expense") {
+        const category = item.category || "Khác";
+        categoryData[category] =
+          (categoryData[category] || 0) + item.amount;
+      }
+    });
+
+    return {
+      labels: Object.keys(categoryData),
+      datasets: [
+        {
+          data: Object.values(categoryData),
+          backgroundColor: [
+            "#f43f5e",
+            "#f97316",
+            "#eab308",
+            "#22c55e",
+            "#0ea5e9",
+            "#8b5cf6",
+          ],
+          borderColor: "#1e293b",
+          borderWidth: 2,
+        },
+      ],
+    };
+  }, [expenses]);
+
+  // ================= OPTIONS =================
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "bottom",
         labels: {
-          color: "#cbd5f5",
+          color: "#475569",
+          font: {
+            family: "'Outfit', sans-serif"
+          }
         },
       },
     },
     scales: {
       x: {
         ticks: {
-          color: "#94a3b8",
+          color: "#475569",
+          font: { family: "'Outfit', sans-serif" }
         },
         grid: {
           display: false,
@@ -102,20 +133,58 @@ function ExpenseChart({ expenses }) {
       },
       y: {
         ticks: {
-          color: "#94a3b8",
+          color: "#475569",
+          font: { family: "'Outfit', sans-serif" },
           callback: (value) => value.toLocaleString(),
         },
         grid: {
-          color: "#334155",
+          color: "rgba(0, 0, 0, 0.05)",
         },
+        border: {
+          dash: [4, 4]
+        }
       },
     },
   };
 
+  const pieOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "right",
+        labels: {
+          color: "#475569",
+          font: {
+            family: "'Outfit', sans-serif"
+          }
+        }
+      }
+    }
+  };
+
+  // ================= UI =================
   return (
-    <div className="chart-section">
-      <h2 style={{ fontSize: "1.2rem", marginBottom: "15px" }}>Xu hướng hàng tháng</h2>
-      <Bar data={barData} options={options} />
+    <div className="glass-panel chart-section" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      {/* BAR CHART */}
+      <div className="chart-wrapper">
+        <h3 className="section-title" style={{ fontSize: "1.1rem" }}>
+          Xu hướng hàng tháng
+        </h3>
+        <div style={{ height: "250px", position: "relative", width: "100%" }}>
+          <Bar data={barData} options={options} />
+        </div>
+      </div>
+
+      {/* PIE CHART */}
+      <div className="chart-wrapper">
+        <h3 className="section-title" style={{ fontSize: "1.1rem" }}>
+          Phân bổ chi tiêu
+        </h3>
+        <div style={{ height: "200px", position: "relative", width: "100%" }}>
+          <Pie data={pieData} options={pieOptions} />
+        </div>
+      </div>
     </div>
   );
 }
